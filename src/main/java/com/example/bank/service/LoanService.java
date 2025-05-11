@@ -15,7 +15,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -99,13 +101,13 @@ public class LoanService {
 
         for (LoanInstallment inst : unpaidInstallments) {
             if (inst.getDueDate().isAfter(maxPayableDate)) break;
-
-            if (amount >= inst.getAmount()) {
-                amount -= inst.getAmount();
-                totalPaid += inst.getAmount();
+            Double calculatedAmount = calculatePaidAmount(inst.getDueDate(), now, BigDecimal.valueOf(inst.getAmount())).doubleValue();
+            if (amount >= calculatedAmount) {
+                amount -= calculatedAmount;
+                totalPaid += calculatedAmount;
                 inst.setIsPaid(true);
                 inst.setPaymentDate(LocalDate.now());
-                inst.setPaidAmount(inst.getAmount());
+                inst.setPaidAmount(calculatedAmount);
                 paidCount++;
                 log.info("Installment is paid.");
             } else {
@@ -128,5 +130,32 @@ public class LoanService {
 
         return new PayLoanResponse(paidCount, totalPaid, loanFullyPaid);
 
+    }
+
+    public BigDecimal calculatePaidAmount(LocalDate dueDate, LocalDate paymentDate, BigDecimal installmentAmount) {
+        long daysDiff = ChronoUnit.DAYS.between(dueDate, paymentDate);
+
+        // early payment case
+        if (daysDiff < 0) {
+            long daysBefore = Math.abs(daysDiff);
+            BigDecimal discount = installmentAmount
+                    .multiply(BigDecimal.valueOf(0.001))
+                    .multiply(BigDecimal.valueOf(daysBefore));
+            log.info("Discount " + discount  + " will be applied due to early payment");
+            return installmentAmount.subtract(discount);
+        }
+
+        // penalty case
+        if (daysDiff > 0) {
+            BigDecimal penalty = installmentAmount
+                    .multiply(BigDecimal.valueOf(0.001))
+                    .multiply(BigDecimal.valueOf(daysDiff));
+            log.info("Penalty " + penalty  + " will be applied due to lately payment");
+            return installmentAmount.add(penalty);
+        }
+
+        // exact time payment
+        log.info( " There is no penalty and discount.");
+        return installmentAmount;
     }
 }
