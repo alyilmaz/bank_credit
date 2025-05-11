@@ -43,7 +43,7 @@ public class UserService implements UserDetailsService {
         }
         User userEntity = UserMapper.INSTANCE.toEntity(user);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
-        userEntity.setRole(ROLE.ADMIN);
+        userEntity.setRole(ROLE.CUSTOMER);
         userRepository.save(userEntity);
         log.info("New user is created");
     }
