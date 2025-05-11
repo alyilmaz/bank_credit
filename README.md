@@ -108,9 +108,9 @@ User table;
 Customer table;
 
 | ID | Name  | Surname | Credit Limit | Used Credit Limit |
-| -- | ----- | ------- | ------------ | ----------------- |
+| -- | ----- | ------- | ------------ |-------------------|
 | 1  | Admin | Admin   | 10000.0      | 0.0               |
-| 2  | Ali   | YILMAZ  | 1000.0       | 0.0               |
+| 2  | Ali   | YILMAZ  | 1000.0       | 12.5              |
 | 3  | Can   | YILMAZ  | 1000.0       | 0.0               |
 
 
