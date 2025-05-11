@@ -64,7 +64,7 @@ public class UserServiceTest {
         User user = new User();
         user.setUsername("ali");
         user.setPassword("1234");
-        user.setRole(ROLE.USER.USER);
+        user.setRole(ROLE.CUSTOMER);
 
         when(userRepository.findByUsername("ali")).thenReturn(Optional.of(user));
 
@@ -75,7 +75,7 @@ public class UserServiceTest {
         assertEquals("ali", userDetails.getUsername());
         assertEquals("1234", userDetails.getPassword());
         assertEquals(1, userDetails.getAuthorities().size());
-        assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority("USER")));
+        assertTrue(userDetails.getAuthorities().contains(new SimpleGrantedAuthority(ROLE.CUSTOMER.toString())));
 
         verify(userRepository).findByUsername("ali");
     }
